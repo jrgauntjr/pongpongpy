@@ -1,7 +1,9 @@
 import arcade
 import os
 
-SCREEN_WIDTH, SCREEN_HEIGHT = arcade.get_display_size()
+
+SCREEN_WIDTH = 1280
+SCREEN_HEIGHT = 720
 SCREEN_TITLE = "Pong Pong"
 SPRITE_SCALING = 0.5
 MOVEMENT_SPEED = 5
@@ -38,6 +40,10 @@ class PongPong(arcade.Window):
         self.clear()
         arcade.draw_texture_rect(self.background, arcade.LBWH(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT))
         self.player_list.draw()
+
+    def on_update(self, delta_time):
+        if not self.paused:
+            self.player_list.update()
     
     def on_key_press(self, symbol, modifiers):
         if symbol == arcade.key.Q:
@@ -80,6 +86,9 @@ class PongPong(arcade.Window):
 class Player(arcade.Sprite):
     def update(self, delta_time: float = 1/60):
 
+        self.center_x += self.change_x
+        self.center_y += self.change_y
+
         if self.left < 0:
             self.left = 0
         elif self.right > SCREEN_WIDTH - 1:
@@ -94,7 +103,6 @@ class Player(arcade.Sprite):
 
 def main():
     window = PongPong(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
-    window.set_fullscreen(True)
     arcade.run()
 
 if __name__ == "__main__":
