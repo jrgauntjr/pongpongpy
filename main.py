@@ -28,7 +28,7 @@ class PongPong(arcade.Window):
         self.background = arcade.load_texture("images/wall.png")
 
         self.player_list = arcade.SpriteList()
-        self.player = Player("images\player.png", scale=SPRITE_SCALING)
+        self.player = Player("images/player.png", scale=SPRITE_SCALING)
 
         self.player.center_x = 50
         self.player.center_y = 50
