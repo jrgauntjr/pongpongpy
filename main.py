@@ -1,4 +1,5 @@
 import arcade
+import random
 import os
 
 
@@ -44,10 +45,11 @@ class PongPong(arcade.Window):
         self.player_list.append(self.player2)
 
     
-
     def on_draw(self):
         self.clear()
         arcade.draw_texture_rect(self.background, arcade.LBWH(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT))
+        if self.paused:
+            arcade.draw_text("Paused", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, arcade.color.WHITE, 48, anchor_x="center")
         self.player_list.draw()
 
     def on_update(self, delta_time):
@@ -59,7 +61,7 @@ class PongPong(arcade.Window):
             arcade.close_window()
         elif symbol == arcade.key.P:
             self.paused = not self.paused
-            if self.paused:
+            if self.paused:               
                 arcade.pause()
             else:
                 arcade.start()
