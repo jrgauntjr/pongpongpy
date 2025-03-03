@@ -6,7 +6,7 @@ SCREEN_WIDTH = 1280
 SCREEN_HEIGHT = 720
 SCREEN_TITLE = "Pong Pong"
 SPRITE_SCALING = 0.5
-MOVEMENT_SPEED = 5
+MOVEMENT_SPEED = 7
 
 class PongPong(arcade.Window):
     def __init__(self, width, height, title):
@@ -15,12 +15,15 @@ class PongPong(arcade.Window):
         self.background = None
 
         self.player = None
+        self.player2 = None
         self.player_list = None
 
         self.left_pressed = False
         self.right_pressed = False
         self.up_pressed = False
         self.down_pressed = False
+        self.w_pressed = False
+        self.s_pressed = False
 
         self.setup()
 
@@ -28,11 +31,17 @@ class PongPong(arcade.Window):
         self.background = arcade.load_texture("images/wall.png")
 
         self.player_list = arcade.SpriteList()
-        self.player = Player("images/player.png", scale=SPRITE_SCALING)
 
-        self.player.center_x = 50
-        self.player.center_y = 50
-        self.player_list.append(self.player)
+        self.player1 = Player("images/player.png", scale=SPRITE_SCALING)
+        self.player1.center_x = 50
+        self.player1.center_y = SCREEN_HEIGHT / 2
+
+        self.player2 = Player("images/player.png", scale=SPRITE_SCALING)
+        self.player2.center_x = SCREEN_WIDTH - 51
+        self.player2.center_y = SCREEN_HEIGHT / 2
+
+        self.player_list.append(self.player1)
+        self.player_list.append(self.player2)
 
     
 
@@ -58,27 +67,48 @@ class PongPong(arcade.Window):
         # Movement       
         elif symbol == arcade.key.UP:
             self.up_pressed = True
-            self.update_player_speed()
+            self.update_player1_speed()
         elif symbol == arcade.key.DOWN:
             self.down_pressed = True
-            self.update_player_speed()
+            self.update_player1_speed()
+        elif symbol == arcade.key.W:
+            self.w_pressed = True
+            self.update_player2_speed()
+        elif symbol == arcade.key.S:
+            self.s_pressed = True
+            self.update_player2_speed()
 
     def on_key_release(self, symbol, modifiers):
         if symbol == arcade.key.UP:
             self.up_pressed = False
-            self.update_player_speed()
+            self.update_player1_speed()
         elif symbol == arcade.key.DOWN:
             self.down_pressed = False
-            self.update_player_speed()
+            self.update_player1_speed()
+        elif symbol == arcade.key.W:
+            self.w_pressed = False
+            self.update_player2_speed()
+        elif symbol == arcade.key.S:
+            self.s_pressed = False
+            self.update_player2_speed()
         
-    def update_player_speed(self):
-        self.player.change_x = 0
-        self.player.change_y = 0
+    def update_player1_speed(self):
+        self.player1.change_x = 0
+        self.player1.change_y = 0
 
         if self.up_pressed and not self.down_pressed:
-            self.player.change_y = MOVEMENT_SPEED
+            self.player1.change_y = MOVEMENT_SPEED
         elif self.down_pressed and not self.up_pressed:
-            self.player.change_y = -MOVEMENT_SPEED
+            self.player1.change_y = -MOVEMENT_SPEED
+    
+    def update_player2_speed(self):
+        self.player2.change_x = 0
+        self.player2.change_y = 0
+
+        if self.w_pressed and not self.s_pressed:
+            self.player2.change_y = MOVEMENT_SPEED
+        elif self.s_pressed and not self.w_pressed:
+            self.player2.change_y = -MOVEMENT_SPEED
 
 
 
