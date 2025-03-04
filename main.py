@@ -19,6 +19,9 @@ class PongPong(arcade.Window):
         self.player2 = None
         self.player_list = None
 
+        self.ball = None
+        self.ball_list = None
+
         self.left_pressed = False
         self.right_pressed = False
         self.up_pressed = False
@@ -32,6 +35,7 @@ class PongPong(arcade.Window):
         self.background = arcade.load_texture("images/wall.png")
 
         self.player_list = arcade.SpriteList()
+        self.ball_list = arcade.SpriteList()
 
         self.player1 = Player("images/player.png", scale=SPRITE_SCALING)
         self.player1.center_x = 50
@@ -41,8 +45,15 @@ class PongPong(arcade.Window):
         self.player2.center_x = SCREEN_WIDTH - 51
         self.player2.center_y = SCREEN_HEIGHT / 2
 
+        self.ball = Ball("images/ball.png", scale=SPRITE_SCALING)
+        self.ball.center_x = SCREEN_WIDTH / 2
+        self.ball.center_y = SCREEN_HEIGHT / 2
+
         self.player_list.append(self.player1)
         self.player_list.append(self.player2)
+        self.ball_list.append(self.ball)
+
+
 
     
     def on_draw(self):
@@ -51,6 +62,7 @@ class PongPong(arcade.Window):
         if self.paused:
             arcade.draw_text("Paused", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, arcade.color.WHITE, 48, anchor_x="center")
         self.player_list.draw()
+        self.ball_list.draw()
 
     def on_update(self, delta_time):
         if not self.paused:
@@ -131,6 +143,26 @@ class Player(arcade.Sprite):
             self.bottom = 0
         elif self.top > SCREEN_HEIGHT - 1:
             self.top = SCREEN_HEIGHT - 1
+
+class Ball(arcade.Sprite):
+    def __init__(self, filename, scale):
+        super().__init__(filename, scale)
+        self.change_x = 0
+        self.change_y = 0
+
+    def update(self, delta_time: float = 1/60):
+
+        self.center_x += self.change_x
+        self.center_y += self.change_y
+
+        if self.left < 0:
+            self.change_x *= -1
+        if self.right > SCREEN_WIDTH - 1:
+            self.change_x *= -1
+        if self.bottom < 0:
+            self.change_y *= -1
+        if self.top > SCREEN_HEIGHT - 1:
+            self.change_y *= -1
 
 
 def main():
