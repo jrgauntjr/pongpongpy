@@ -65,8 +65,34 @@ class PongPong(arcade.Window):
         self.ball_list.draw()
 
     def on_update(self, delta_time):
+
         if not self.paused:
             self.player_list.update()
+            self.ball_list.update(delta_time)
+
+            hit_list = arcade.check_for_collision_with_list(self.ball, self.player_list)
+            for ball in hit_list:
+                self.ball.change_x *= -1
+                self.ball.change_y *= -1
+                if arcade.check_for_collision(self.ball, self.player1):
+                    self.ball.center_x = self.player1.right + self.ball.width / 2
+                    self.add_new_ball()
+                elif arcade.check_for_collision(self.ball, self.player2):
+                    self.ball.center_x = self.player2.left - self.ball.width / 2
+                    self.add_new_ball() 
+
+            if arcade.check_for_collision(self.ball, self.player1):
+                self.ball.change_x *= -1
+                self.ball.change_y *= -1
+                self.ball.center_x = self.player1.right + self.ball.width / 2
+                self.add_new_ball()
+
+            if arcade.check_for_collision(self.ball, self.player2):
+                self.ball.change_x *= -1
+                self.ball.change_y *= -1
+                self.ball.center_x = self.player2.left - self.ball.width / 2
+                self.add_new_ball()
+
     
     def on_key_press(self, symbol, modifiers):
         if symbol == arcade.key.Q:
@@ -81,49 +107,54 @@ class PongPong(arcade.Window):
         # Movement       
         elif symbol == arcade.key.UP:
             self.up_pressed = True
-            self.update_player1_speed()
+            self.update_player2_speed()
         elif symbol == arcade.key.DOWN:
             self.down_pressed = True
-            self.update_player1_speed()
+            self.update_player2_speed()
         elif symbol == arcade.key.W:
             self.w_pressed = True
-            self.update_player2_speed()
+            self.update_player1_speed()
         elif symbol == arcade.key.S:
             self.s_pressed = True
-            self.update_player2_speed()
+            self.update_player1_speed()
 
     def on_key_release(self, symbol, modifiers):
         if symbol == arcade.key.UP:
             self.up_pressed = False
-            self.update_player1_speed()
+            self.update_player2_speed()
         elif symbol == arcade.key.DOWN:
             self.down_pressed = False
-            self.update_player1_speed()
+            self.update_player2_speed()
         elif symbol == arcade.key.W:
             self.w_pressed = False
-            self.update_player2_speed()
+            self.update_player1_speed()
         elif symbol == arcade.key.S:
             self.s_pressed = False
-            self.update_player2_speed()
-        
+            self.update_player1_speed()
+
     def update_player1_speed(self):
         self.player1.change_x = 0
         self.player1.change_y = 0
 
-        if self.up_pressed and not self.down_pressed:
+        if self.w_pressed and not self.s_pressed:
             self.player1.change_y = MOVEMENT_SPEED
-        elif self.down_pressed and not self.up_pressed:
+        elif self.s_pressed and not self.w_pressed:
             self.player1.change_y = -MOVEMENT_SPEED
-    
+
     def update_player2_speed(self):
         self.player2.change_x = 0
         self.player2.change_y = 0
 
-        if self.w_pressed and not self.s_pressed:
+        if self.up_pressed and not self.down_pressed:
             self.player2.change_y = MOVEMENT_SPEED
-        elif self.s_pressed and not self.w_pressed:
+        elif self.down_pressed and not self.up_pressed:
             self.player2.change_y = -MOVEMENT_SPEED
-
+    
+    def add_new_ball(self):
+        ball = Ball("images/ball.png", scale=SPRITE_SCALING)
+        ball.center_x = SCREEN_WIDTH / 2
+        ball.center_y = SCREEN_HEIGHT / 2
+        self.ball_list.append(ball)
 
 
 
@@ -147,8 +178,8 @@ class Player(arcade.Sprite):
 class Ball(arcade.Sprite):
     def __init__(self, filename, scale):
         super().__init__(filename, scale)
-        self.change_x = 0
-        self.change_y = 0
+        self.change_x = 4
+        self.change_y = 4
 
     def update(self, delta_time: float = 1/60):
 
