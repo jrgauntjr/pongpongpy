@@ -1,5 +1,4 @@
 import arcade
-import time
 
 SCREEN_WIDTH = 1280
 SCREEN_HEIGHT = 720
