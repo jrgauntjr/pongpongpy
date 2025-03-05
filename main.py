@@ -1,7 +1,5 @@
 import arcade
-import random
-import os
-
+import time
 
 SCREEN_WIDTH = 1280
 SCREEN_HEIGHT = 720
@@ -20,6 +18,7 @@ class PongPong(arcade.Window):
 
         self.player2 = None
         self.p2_score = 0
+
 
         self.player_list = None
 
@@ -57,6 +56,10 @@ class PongPong(arcade.Window):
     def on_draw(self):
         self.clear()
         arcade.draw_texture_rect(self.background, arcade.LBWH(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT))
+        s1 = f"P1 Score: {self.p1_score}"
+        arcade.draw_text(s1, 10, SCREEN_HEIGHT - 20, arcade.color.WHITE, 14)
+        s2 = f"P2 Score: {self.p2_score}"
+        arcade.draw_text(s2, SCREEN_WIDTH - 100, SCREEN_HEIGHT - 20, arcade.color.WHITE, 14)
         if self.paused:
             arcade.draw_text("Paused", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, arcade.color.WHITE, 48, anchor_x="center")
         self.player_list.draw()
@@ -82,6 +85,19 @@ class PongPong(arcade.Window):
                     ball.center_x = self.player2.left - ball.width / 2
                     self.add_new_ball()
 
+                if ball.left < 0:
+                    self.p2_score += 1
+                    self.ball_list.remove(ball)
+                
+                if ball.right > SCREEN_WIDTH:
+                    self.p1_score += 1
+                    self.ball_list.remove(ball)
+            
+            if len(self.ball_list) == 0:
+                self.add_new_ball()
+
+
+                
     def add_new_ball(self):
         new_ball = Ball("images/ball.png", scale=SPRITE_SCALING)
         new_ball.center_x = SCREEN_WIDTH / 2
@@ -93,10 +109,6 @@ class PongPong(arcade.Window):
             arcade.close_window()
         elif symbol == arcade.key.P:
             self.paused = not self.paused
-            if self.paused:
-                arcade.pause()
-            else:
-                arcade.start()
 
         # Movement
         elif symbol == arcade.key.UP:
