@@ -15,15 +15,16 @@ class PongPong(arcade.Window):
         self.paused = False
         self.background = None
 
-        self.player = None
+        self.player1 = None
+        self.p1_score = 0
+
         self.player2 = None
+        self.p2_score = 0
+
         self.player_list = None
 
-        self.ball = None
         self.ball_list = None
 
-        self.left_pressed = False
-        self.right_pressed = False
         self.up_pressed = False
         self.down_pressed = False
         self.w_pressed = False
@@ -53,9 +54,6 @@ class PongPong(arcade.Window):
         self.player_list.append(self.player2)
         self.ball_list.append(self.ball)
 
-
-
-    
     def on_draw(self):
         self.clear()
         arcade.draw_texture_rect(self.background, arcade.LBWH(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -65,46 +63,42 @@ class PongPong(arcade.Window):
         self.ball_list.draw()
 
     def on_update(self, delta_time):
-
         if not self.paused:
             self.player_list.update()
             self.ball_list.update(delta_time)
 
-            hit_list = arcade.check_for_collision_with_list(self.ball, self.player_list)
-            for ball in hit_list:
-                self.ball.change_x *= -1
-                self.ball.change_y *= -1
-                if arcade.check_for_collision(self.ball, self.player1):
-                    self.ball.center_x = self.player1.right + self.ball.width / 2
+            for ball in self.ball_list:
+                # Check for collisions with player1
+                if arcade.check_for_collision(ball, self.player1):
+                    ball.change_x *= -1
+                    ball.change_y *= -1
+                    ball.center_x = self.player1.right + ball.width / 2
                     self.add_new_ball()
-                elif arcade.check_for_collision(self.ball, self.player2):
-                    self.ball.center_x = self.player2.left - self.ball.width / 2
-                    self.add_new_ball() 
 
-            if arcade.check_for_collision(self.ball, self.player1):
-                self.ball.change_x *= -1
-                self.ball.change_y *= -1
-                self.ball.center_x = self.player1.right + self.ball.width / 2
-                self.add_new_ball()
+                # Check for collisions with player2
+                if arcade.check_for_collision(ball, self.player2):
+                    ball.change_x *= -1
+                    ball.change_y *= -1
+                    ball.center_x = self.player2.left - ball.width / 2
+                    self.add_new_ball()
 
-            if arcade.check_for_collision(self.ball, self.player2):
-                self.ball.change_x *= -1
-                self.ball.change_y *= -1
-                self.ball.center_x = self.player2.left - self.ball.width / 2
-                self.add_new_ball()
+    def add_new_ball(self):
+        new_ball = Ball("images/ball.png", scale=SPRITE_SCALING)
+        new_ball.center_x = SCREEN_WIDTH / 2
+        new_ball.center_y = SCREEN_HEIGHT / 2
+        self.ball_list.append(new_ball)
 
-    
     def on_key_press(self, symbol, modifiers):
         if symbol == arcade.key.Q:
             arcade.close_window()
         elif symbol == arcade.key.P:
             self.paused = not self.paused
-            if self.paused:               
+            if self.paused:
                 arcade.pause()
             else:
                 arcade.start()
 
-        # Movement       
+        # Movement
         elif symbol == arcade.key.UP:
             self.up_pressed = True
             self.update_player2_speed()
@@ -149,18 +143,10 @@ class PongPong(arcade.Window):
             self.player2.change_y = MOVEMENT_SPEED
         elif self.down_pressed and not self.up_pressed:
             self.player2.change_y = -MOVEMENT_SPEED
-    
-    def add_new_ball(self):
-        ball = Ball("images/ball.png", scale=SPRITE_SCALING)
-        ball.center_x = SCREEN_WIDTH / 2
-        ball.center_y = SCREEN_HEIGHT / 2
-        self.ball_list.append(ball)
-
 
 
 class Player(arcade.Sprite):
     def update(self, delta_time: float = 1/60):
-
         self.center_x += self.change_x
         self.center_y += self.change_y
 
@@ -169,11 +155,11 @@ class Player(arcade.Sprite):
         elif self.right > SCREEN_WIDTH - 1:
             self.right = SCREEN_WIDTH - 1
 
-
         if self.bottom < 0:
             self.bottom = 0
         elif self.top > SCREEN_HEIGHT - 1:
             self.top = SCREEN_HEIGHT - 1
+
 
 class Ball(arcade.Sprite):
     def __init__(self, filename, scale):
@@ -182,7 +168,6 @@ class Ball(arcade.Sprite):
         self.change_y = 4
 
     def update(self, delta_time: float = 1/60):
-
         self.center_x += self.change_x
         self.center_y += self.change_y
 
