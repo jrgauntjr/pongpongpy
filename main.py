@@ -1,10 +1,11 @@
 import arcade
+import random
 
 SCREEN_WIDTH = 1280
 SCREEN_HEIGHT = 720
 SCREEN_TITLE = "Pong Pong"
 SPRITE_SCALING = 0.5
-MOVEMENT_SPEED = 7
+MOVEMENT_SPEED = 8
 
 class PongPong(arcade.Window):
     def __init__(self, width, height, title):
@@ -56,9 +57,9 @@ class PongPong(arcade.Window):
         self.clear()
         arcade.draw_texture_rect(self.background, arcade.LBWH(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT))
         s1 = f"P1 Score: {self.p1_score}"
-        arcade.draw_text(s1, 10, SCREEN_HEIGHT - 20, arcade.color.WHITE, 14)
+        arcade.draw_text(s1, 10, SCREEN_HEIGHT - 20, arcade.color.GOLD, 14)
         s2 = f"P2 Score: {self.p2_score}"
-        arcade.draw_text(s2, SCREEN_WIDTH - 100, SCREEN_HEIGHT - 20, arcade.color.WHITE, 14)
+        arcade.draw_text(s2, SCREEN_WIDTH - 100, SCREEN_HEIGHT - 20, arcade.color.BLACK, 14)
         if self.paused:
             arcade.draw_text("Paused", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, arcade.color.WHITE, 48, anchor_x="center")
         self.player_list.draw()
@@ -70,40 +71,50 @@ class PongPong(arcade.Window):
             self.ball_list.update(delta_time)
 
             for ball in self.ball_list:
+                if ball.collision_cooldown > 0:
+                    continue  # Skip collision checks if cooldown is active
+
+                ball_collided = False
+
                 # Check for collisions with player1
                 if arcade.check_for_collision(ball, self.player1):
                     ball.change_x *= -1
-                    ball.change_y *= -1
+                    ball.change_y += random.uniform(-1, 1)  # Add randomness to the y direction
                     ball.center_x = self.player1.right + ball.width / 2
                     self.add_new_ball()
+                    ball_collided = True
+                    ball.collision_cooldown = 0.5  # Set cooldown period
 
                 # Check for collisions with player2
-                if arcade.check_for_collision(ball, self.player2):
+                if not ball_collided and arcade.check_for_collision(ball, self.player2):
                     ball.change_x *= -1
-                    ball.change_y *= -1
+                    ball.change_y += random.uniform(-1, 1)  # Add randomness to the y direction
                     ball.center_x = self.player2.left - ball.width / 2
                     self.add_new_ball()
+                    ball_collided = True
+                    ball.collision_cooldown = 0.5  # Set cooldown period
 
                 if ball.left < 0:
                     self.p2_score += 1
                     self.ball_list.remove(ball)
-                
+
                 if ball.right > SCREEN_WIDTH:
                     self.p1_score += 1
                     self.ball_list.remove(ball)
-            
+
             if len(self.ball_list) == 0:
                 self.add_new_ball()
-
 
                 
     def add_new_ball(self):
         new_ball = Ball("images/ball.png", scale=SPRITE_SCALING)
         new_ball.center_x = SCREEN_WIDTH / 2
         new_ball.center_y = SCREEN_HEIGHT / 2
+        new_ball.change_x = random.choice([-4, 4])  # Random initial x direction
+        new_ball.change_y = random.uniform(-2, 2)  # Random initial y direction
         self.ball_list.append(new_ball)
 
-    def on_key_press(self, symbol, modifiers):
+    def on_key_press(self, symbol, modifiesrs):
         if symbol == arcade.key.Q:
             arcade.close_window()
         elif symbol == arcade.key.P:
@@ -177,6 +188,7 @@ class Ball(arcade.Sprite):
         super().__init__(filename, scale)
         self.change_x = 4
         self.change_y = 4
+        self.collision_cooldown = 0  # Cooldown period for collisions
 
     def update(self, delta_time: float = 1/60):
         self.center_x += self.change_x
@@ -184,12 +196,19 @@ class Ball(arcade.Sprite):
 
         if self.left < 0:
             self.change_x *= -1
+            self.change_y += random.uniform(-1, 1)
         if self.right > SCREEN_WIDTH - 1:
             self.change_x *= -1
+            self.change_y += random.uniform(-1, 1)
         if self.bottom < 0:
             self.change_y *= -1
+            self.change_x += random.uniform(-1, 1)
         if self.top > SCREEN_HEIGHT - 1:
             self.change_y *= -1
+            self.change_x += random.uniform(-1, 1)
+
+        if self.collision_cooldown > 0:
+            self.collision_cooldown -= delta_time
 
 
 def main():
